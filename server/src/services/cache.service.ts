@@ -83,6 +83,11 @@ export const cacheService = {
     return isConnected && client !== null;
   },
 
+  // Get raw Redis client (for advanced operations)
+  getClient(): Redis | null {
+    return isConnected ? client : null;
+  },
+
   // Get a key with prefix
   getKey(key: string): string {
     return `${CACHE_CONFIG.prefix}${key}`;

@@ -28,6 +28,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
 import { cacheService } from './services/cache.service.js';
 import { schedulerService } from './services/scheduler.service.js';
+import { metricsMiddleware, metricsHandler } from './middleware/metrics.js';
 
 const app = new Hono();
 
@@ -45,6 +46,9 @@ app.use(
   })
 );
 app.use('*', secureHeaders());
+
+// Metrics middleware (must be before other middleware)
+app.use('*', metricsMiddleware());
 
 // Request logging
 app.use('*', async (c, next) => {
@@ -87,6 +91,9 @@ app.get('/ready', async (c) => {
 
   return c.json({ ready: true });
 });
+
+// Prometheus metrics endpoint
+app.get('/metrics', metricsHandler);
 
 // Better Auth routes
 app.on(['GET', 'POST'], '/api/auth/**', (c) => {
