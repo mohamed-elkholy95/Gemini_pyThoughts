@@ -22,6 +22,8 @@ import { adminRouter } from './routes/admin.js';
 import { searchRouter } from './routes/search.js';
 import { webhooksRouter } from './routes/webhooks.js';
 import { seoRouter } from './routes/seo.js';
+import { tagsRouter } from './routes/tags.js';
+import { analyticsRouter } from './routes/analytics.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
 import { cacheService } from './services/cache.service.js';
@@ -103,6 +105,8 @@ app.route('/api/docs', docsRouter);
 app.route('/api/admin', adminRouter);
 app.route('/api/search', searchRouter);
 app.route('/api/webhooks', webhooksRouter);
+app.route('/api/tags', tagsRouter);
+app.route('/api/analytics', analyticsRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -127,6 +131,8 @@ app.get('/api', (c) => {
       search: '/api/search',
       webhooks: '/api/webhooks',
       admin: '/api/admin',
+      tags: '/api/tags',
+      analytics: '/api/analytics',
     },
     docs: '/api/docs',
     seo: {

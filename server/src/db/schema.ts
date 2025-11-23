@@ -70,11 +70,14 @@ export const drafts = pgTable('drafts', {
   readingTime: integer('reading_time').default(0),
   isDeleted: boolean('is_deleted').notNull().default(false),
   deletedAt: timestamp('deleted_at'),
+  isFeatured: boolean('is_featured').notNull().default(false),
+  featuredAt: timestamp('featured_at'),
 }, (table) => [
   index('drafts_author_idx').on(table.authorId),
   index('drafts_status_idx').on(table.status),
   index('drafts_created_idx').on(table.createdAt),
   index('drafts_scheduled_idx').on(table.scheduledAt),
+  index('drafts_featured_idx').on(table.isFeatured),
 ]);
 
 // Draft versions for version control

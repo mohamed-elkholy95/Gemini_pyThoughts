@@ -110,6 +110,60 @@ export interface Article {
   readingTime: number;
 }
 
+export interface ArticleWithAuthor extends Article {
+  author: {
+    id: string;
+    name: string;
+    image?: string;
+  };
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  articleCount?: number;
+}
+
+export interface Notification {
+  id: string;
+  type: 'follow' | 'comment' | 'reply' | 'publish' | 'mention' | 'like';
+  title: string;
+  message?: string;
+  link?: string;
+  actorId?: string;
+  entityType?: string;
+  entityId?: string;
+  isRead: boolean;
+  createdAt: string;
+  actor?: {
+    id: string;
+    name: string;
+    image?: string;
+  };
+}
+
+export interface UserAnalytics {
+  totalArticles: number;
+  totalViews: number;
+  totalLikes: number;
+  totalComments: number;
+  totalFollowers: number;
+  totalFollowing: number;
+  engagementRate: number;
+}
+
+export interface ArticleAnalytics {
+  views: number;
+  uniqueViews: number;
+  likes: number;
+  comments: number;
+  bookmarks: number;
+  readTime: number;
+  engagementRate: number;
+}
+
 export interface Comment {
   id: string;
   content: string;
@@ -253,6 +307,20 @@ export const articlesApi = {
   async getBySlug(slug: string) {
     return apiRequest<{ article: Draft }>(`/articles/slug/${slug}`);
   },
+
+  async getFeatured(limit?: number) {
+    const searchParams = new URLSearchParams();
+    if (limit) searchParams.set('limit', limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{ articles: ArticleWithAuthor[] }>(`/articles/featured${query ? `?${query}` : ''}`);
+  },
+
+  async getRecommended(limit?: number) {
+    const searchParams = new URLSearchParams();
+    if (limit) searchParams.set('limit', limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{ articles: ArticleWithAuthor[] }>(`/articles/recommended${query ? `?${query}` : ''}`);
+  },
 };
 
 // Users API
@@ -379,6 +447,153 @@ export const commentsApi = {
   },
 };
 
+// Tags API
+export const tagsApi = {
+  async list() {
+    return apiRequest<{ tags: Tag[] }>('/tags');
+  },
+
+  async getPopular(limit?: number) {
+    const searchParams = new URLSearchParams();
+    if (limit) searchParams.set('limit', limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{ tags: Tag[] }>(`/tags/popular${query ? `?${query}` : ''}`);
+  },
+
+  async getBySlug(slug: string) {
+    return apiRequest<{ tag: Tag }>(`/tags/${slug}`);
+  },
+
+  async getArticles(slug: string, params?: PaginationParams) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{ articles: ArticleWithAuthor[]; pagination: Pagination; tag: Tag }>(
+      `/tags/${slug}/articles${query ? `?${query}` : ''}`
+    );
+  },
+};
+
+// Feed API
+export const feedApi = {
+  async getFeed(params?: PaginationParams & { type?: 'personalized' | 'following' | 'trending' }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.type) searchParams.set('type', params.type);
+    const query = searchParams.toString();
+    return apiRequest<{ articles: ArticleWithAuthor[]; pagination: Pagination }>(`/feed${query ? `?${query}` : ''}`);
+  },
+
+  async getTrending(params?: PaginationParams) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{ articles: ArticleWithAuthor[]; pagination: Pagination }>(
+      `/feed/trending${query ? `?${query}` : ''}`
+    );
+  },
+
+  async getFollowing(params?: PaginationParams) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{ articles: ArticleWithAuthor[]; pagination: Pagination }>(
+      `/feed/following${query ? `?${query}` : ''}`
+    );
+  },
+};
+
+// Notifications API
+export const notificationsApi = {
+  async list(params?: PaginationParams & { unreadOnly?: boolean }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.unreadOnly) searchParams.set('unreadOnly', 'true');
+    const query = searchParams.toString();
+    return apiRequest<{ notifications: Notification[]; pagination: Pagination; unreadCount: number }>(
+      `/notifications${query ? `?${query}` : ''}`
+    );
+  },
+
+  async getUnreadCount() {
+    return apiRequest<{ count: number }>('/notifications/unread-count');
+  },
+
+  async markAsRead(notificationId: string) {
+    return apiRequest<{ notification: Notification }>(`/notifications/${notificationId}/read`, {
+      method: 'PATCH',
+    });
+  },
+
+  async markAllAsRead() {
+    return apiRequest<{ message: string }>('/notifications/read-all', {
+      method: 'POST',
+    });
+  },
+};
+
+// Analytics API
+export const analyticsApi = {
+  async getMyAnalytics() {
+    return apiRequest<UserAnalytics>('/analytics/me');
+  },
+
+  async getMyTopArticles(params?: PaginationParams) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{
+      articles: Array<{
+        id: string;
+        title: string;
+        views: number;
+        likes: number;
+        comments: number;
+        publishedAt: string;
+      }>;
+      pagination: Pagination;
+    }>(`/analytics/me/top-articles${query ? `?${query}` : ''}`);
+  },
+
+  async getArticleAnalytics(articleId: string) {
+    return apiRequest<ArticleAnalytics>(`/analytics/articles/${articleId}`);
+  },
+
+  async getPlatformAnalytics() {
+    return apiRequest<{
+      totalUsers: number;
+      totalArticles: number;
+      totalViews: number;
+      totalComments: number;
+      recentSignups: number;
+      activeUsers: number;
+    }>('/analytics/platform');
+  },
+};
+
+// Search API
+export const searchApi = {
+  async search(params: { q: string; type?: 'articles' | 'users' | 'all' } & PaginationParams) {
+    const searchParams = new URLSearchParams();
+    searchParams.set('q', params.q);
+    if (params.type) searchParams.set('type', params.type);
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return apiRequest<{
+      articles?: ArticleWithAuthor[];
+      users?: User[];
+      pagination: Pagination;
+    }>(`/search?${query}`);
+  },
+};
+
 // Export all APIs
 export const api = {
   auth: authApi,
@@ -386,6 +601,11 @@ export const api = {
   articles: articlesApi,
   users: usersApi,
   comments: commentsApi,
+  tags: tagsApi,
+  feed: feedApi,
+  notifications: notificationsApi,
+  analytics: analyticsApi,
+  search: searchApi,
 };
 
 export default api;
