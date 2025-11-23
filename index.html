@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pythoughts</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Satisfy&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                        logo: ['Satisfy', 'cursive'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#2C3E50',
+                            teal: '#4CA1AF',
+                        },
+                        light: {
+                            body: '#ffffff',
+                            surface: '#ffffff',
+                            secondary: '#f9f9f9',
+                            pill: '#f2f2f2',
+                            textMain: '#242424',
+                            textSec: '#6b6b6b',
+                            border: '#f2f2f2',
+                            accent: '#F5E769', // Updated yellow
+                            muteAccent: 'rgba(245, 231, 105, 0.2)', // 20% opacity
+                            hover: '#f5f5f5',
+                        },
+                        dark: {
+                            body: '#101010',
+                            surface: '#101010',
+                            secondary: '#242424',
+                            pill: '#242424',
+                            textMain: '#e6e6e6',
+                            textSec: '#a8a8a8',
+                            border: '#2f2f2f',
+                            accent: '#F5E769',
+                            hover: '#1f1f1f',
+                        }
+                    },
+                    backgroundImage: {
+                        'hero-gradient': 'linear-gradient(45deg, #2C3E50, #4CA1AF)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent; /* Makes the track invisible */
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #e5e5e5;
+            border-radius: 10px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4d4d4;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
+        /* Firefox Support */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #e5e5e5 transparent;
+        }
+        .dark * {
+            scrollbar-color: #333 transparent;
+        }
+
+        /* Hide Scrollbar Utility */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .animate-blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        .opacity-0 {
+            opacity: 0;
+        }
+        
+        /* Tiptap Prosemirror Styles */
+        .ProseMirror {
+            outline: none;
+        }
+        .ProseMirror p.is-editor-empty:first-child::before {
+            color: #adb5bd;
+            content: attr(data-placeholder);
+            float: left;
+            height: 0;
+            pointer-events: none;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.292.0",
+    "@editorjs/editorjs": "https://esm.sh/@editorjs/editorjs@2.29.0",
+    "@editorjs/header": "https://esm.sh/@editorjs/header@2.8.1",
+    "@editorjs/list": "https://esm.sh/@editorjs/list@1.9.0",
+    "@editorjs/image": "https://esm.sh/@editorjs/image@2.9.0",
+    "@editorjs/quote": "https://esm.sh/@editorjs/quote@2.6.0",
+    "@editorjs/embed": "https://esm.sh/@editorjs/embed@2.7.0",
+    "@editorjs/marker": "https://esm.sh/@editorjs/marker@1.4.0",
+    "@tiptap/react": "https://aistudiocdn.com/@tiptap/react@^3.11.0",
+    "@tiptap/starter-kit": "https://aistudiocdn.com/@tiptap/starter-kit@^3.11.0",
+    "@tiptap/extension-image": "https://aistudiocdn.com/@tiptap/extension-image@^3.11.0",
+    "@tiptap/extension-link": "https://aistudiocdn.com/@tiptap/extension-link@^3.11.0",
+    "@tiptap/extension-placeholder": "https://aistudiocdn.com/@tiptap/extension-placeholder@^3.11.0",
+    "@tiptap/extension-code-block": "https://aistudiocdn.com/@tiptap/extension-code-block@^3.11.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+</head>
+<body class="bg-light-body dark:bg-dark-body text-light-textMain dark:text-dark-textMain transition-colors duration-300">
+    <div id="root"></div>
+</body>
+</html>
+    
