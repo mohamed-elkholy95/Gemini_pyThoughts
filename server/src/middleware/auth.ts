@@ -55,3 +55,6 @@ export function getCurrentUser(c: Context<AuthContext>) {
 export function getCurrentSession(c: Context<AuthContext>) {
   return c.get('session');
 }
+
+// Alias for optional authentication middleware
+export const optionalAuth = getSession;

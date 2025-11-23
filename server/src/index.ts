@@ -19,6 +19,7 @@ import { notificationsRouter } from './routes/notifications.js';
 import { uploadRouter } from './routes/upload.js';
 import { docsRouter } from './routes/docs.js';
 import { adminRouter } from './routes/admin.js';
+import { searchRouter } from './routes/search.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 
 const app = new Hono();
@@ -95,6 +96,7 @@ app.route('/api/notifications', notificationsRouter);
 app.route('/api/upload', uploadRouter);
 app.route('/api/docs', docsRouter);
 app.route('/api/admin', adminRouter);
+app.route('/api/search', searchRouter);
 
 // Serve uploaded files
 app.use('/uploads/*', serveStatic({ root: './' }));
@@ -113,6 +115,7 @@ app.get('/api', (c) => {
       feed: '/api/feed',
       notifications: '/api/notifications',
       upload: '/api/upload',
+      search: '/api/search',
       admin: '/api/admin',
     },
     docs: '/api/docs',
