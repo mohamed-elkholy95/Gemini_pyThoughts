@@ -2,6 +2,9 @@ import { logger } from '../config/logger.js';
 import { checkDatabaseConnection } from '../db/index.js';
 import { cacheService } from './cache.service.js';
 import { queueService } from './queue.service.js';
+import { eventBus } from './eventBus.service.js';
+import { circuitBreakerRegistry } from './circuitBreaker.service.js';
+import { workerPoolService } from './workerPool.service.js';
 
 // Health check statuses
 type ServiceStatus = 'healthy' | 'degraded' | 'unhealthy';
@@ -127,6 +130,14 @@ export const lifecycleService = {
       queueService.stop();
       logger.info('Queue processing stopped');
 
+      // Stop worker pool
+      try {
+        await workerPoolService.stop();
+        logger.info('Worker pool stopped');
+      } catch (error) {
+        logger.error({ error }, 'Error stopping worker pool');
+      }
+
       // Run registered shutdown handlers
       for (const handler of shutdownHandlers) {
         try {
@@ -135,6 +146,18 @@ export const lifecycleService = {
           logger.error({ error }, 'Shutdown handler error');
         }
       }
+
+      // Shutdown event bus
+      try {
+        await eventBus.shutdown();
+        logger.info('Event bus shutdown');
+      } catch (error) {
+        logger.error({ error }, 'Error shutting down event bus');
+      }
+
+      // Destroy circuit breakers
+      circuitBreakerRegistry.destroyAll();
+      logger.info('Circuit breakers destroyed');
 
       // Disconnect services
       await Promise.allSettled([

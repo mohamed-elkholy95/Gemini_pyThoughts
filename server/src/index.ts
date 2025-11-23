@@ -24,6 +24,7 @@ import { webhooksRouter } from './routes/webhooks.js';
 import { seoRouter } from './routes/seo.js';
 import { tagsRouter } from './routes/tags.js';
 import { analyticsRouter } from './routes/analytics.js';
+import { jobsRouter } from './routes/jobs.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
 import { cacheService } from './services/cache.service.js';
@@ -114,6 +115,7 @@ app.route('/api/search', searchRouter);
 app.route('/api/webhooks', webhooksRouter);
 app.route('/api/tags', tagsRouter);
 app.route('/api/analytics', analyticsRouter);
+app.route('/api/jobs', jobsRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
