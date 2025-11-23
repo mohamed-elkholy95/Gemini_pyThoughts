@@ -12,6 +12,8 @@ import { rateLimit } from './middleware/rateLimiter.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { draftsRouter } from './routes/drafts.js';
 import { articlesRouter } from './routes/articles.js';
+import { usersRouter } from './routes/users.js';
+import { commentsRouter } from './routes/comments.js';
 
 const app = new Hono();
 
@@ -80,6 +82,8 @@ app.on(['GET', 'POST'], '/api/auth/**', (c) => {
 // API routes
 app.route('/api/drafts', draftsRouter);
 app.route('/api/articles', articlesRouter);
+app.route('/api/users', usersRouter);
+app.route('/api/comments', commentsRouter);
 
 // API info
 app.get('/api', (c) => {
@@ -90,6 +94,8 @@ app.get('/api', (c) => {
       auth: '/api/auth',
       drafts: '/api/drafts',
       articles: '/api/articles',
+      users: '/api/users',
+      comments: '/api/comments',
     },
     docs: '/api/docs',
   });
