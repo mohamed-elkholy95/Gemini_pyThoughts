@@ -11,12 +11,12 @@ interface SidebarLeftProps {
 
 export const SidebarLeft: React.FC<SidebarLeftProps> = ({ isOpen, onNavigate, onPersonClick, activeView }) => {
   const sidebarClasses = `
-    fixed md:sticky top-[57px] h-[calc(100vh-57px)]
+    sticky top-[57px] h-[calc(100vh-57px)]
     flex flex-col border-r border-light-border dark:border-dark-border
     bg-light-surface dark:bg-dark-surface
     overflow-y-auto overflow-x-hidden whitespace-nowrap
-    transition-all duration-300 ease-in-out z-20
-    ${isOpen ? 'w-[240px] p-[30px_20px] opacity-100 translate-x-0' : 'w-0 p-0 opacity-0 -translate-x-full md:translate-x-0 md:w-0'}
+    transition-all duration-300 ease-in-out z-50
+    ${isOpen ? 'w-[240px] p-[30px_20px] opacity-100 translate-x-0 shadow-2xl md:shadow-none' : 'w-0 p-0 opacity-0 -translate-x-full'}
   `;
 
   return (
@@ -56,7 +56,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({ isOpen, onNavigate, on
       <div className="h-px bg-light-border dark:bg-dark-border my-5" />
 
       <div 
-        className={`text-base font-semibold mb-4 cursor-pointer hover:text-light-textMain dark:hover:text-dark-textMain ${activeView === 'following' ? 'text-light-textMain dark:text-dark-textMain' : 'text-light-textSec dark:text-dark-textSec'}`}
+        className={`text-base font-semibold mb-4 cursor-pointer hover:text-light-textMain dark:text-dark-textMain ${activeView === 'following' ? 'text-light-textMain dark:text-dark-textMain' : 'text-light-textSec dark:text-dark-textSec'}`}
         onClick={() => onNavigate('following')}
       >
         Following

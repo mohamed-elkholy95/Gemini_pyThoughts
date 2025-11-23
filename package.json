@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "lucide-react": "0.292.0",
     "@editorjs/editorjs": "2.29.0",
     "@editorjs/header": "2.8.1",
@@ -17,14 +18,7 @@
     "@editorjs/image": "2.9.0",
     "@editorjs/quote": "2.6.0",
     "@editorjs/embed": "2.7.0",
-    "@editorjs/marker": "1.4.0",
-    "@tiptap/react": "^3.11.0",
-    "@tiptap/starter-kit": "^3.11.0",
-    "@tiptap/extension-image": "^3.11.0",
-    "@tiptap/extension-link": "^3.11.0",
-    "@tiptap/extension-placeholder": "^3.11.0",
-    "@tiptap/extension-code-block": "^3.11.0",
-    "react-dom": "^19.2.0"
+    "@editorjs/marker": "1.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

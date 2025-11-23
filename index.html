@@ -141,24 +141,90 @@
             opacity: 0;
         }
         
-        /* Tiptap Prosemirror Styles */
-        .ProseMirror {
-            outline: none;
+        /* Editor.js Styles */
+        .codex-editor__redactor {
+            padding-bottom: 100px !important;
         }
-        .ProseMirror p.is-editor-empty:first-child::before {
-            color: #adb5bd;
-            content: attr(data-placeholder);
-            float: left;
-            height: 0;
-            pointer-events: none;
+        .ce-block__content {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .ce-toolbar__content {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .ce-popover {
+            z-index: 50;
+        }
+        
+        /* Dark Mode Overrides for Editor.js */
+        .dark .ce-block {
+            color: #e6e6e6;
+        }
+        .dark .ce-header {
+            color: #e6e6e6;
+        }
+        .dark .ce-toolbar__plus, .dark .ce-toolbar__settings-btn {
+            color: #a8a8a8;
+            background-color: transparent;
+        }
+        .dark .ce-toolbar__plus:hover, .dark .ce-toolbar__settings-btn:hover {
+            background-color: #242424;
+            color: #fff;
+        }
+        .dark .ce-popover {
+            background-color: #242424;
+            border: 1px solid #2f2f2f;
+        }
+        .dark .ce-popover-item {
+            color: #e6e6e6;
+        }
+        .dark .ce-popover-item:hover {
+            background-color: #333;
+        }
+        .dark .ce-popover-item__icon {
+            background-color: #333;
+            box-shadow: none;
+        }
+        .dark .cdx-search-field {
+            background-color: #1f1f1f;
+            color: #e6e6e6;
+        }
+        .dark .ce-inline-toolbar {
+            background-color: #242424;
+            border-color: #2f2f2f;
+            color: #e6e6e6;
+        }
+        .dark .ce-inline-tool:hover {
+            background-color: #333;
+        }
+        .dark .ce-inline-tool--active {
+            color: #F5E769;
+        }
+        .dark .cdx-settings-button {
+            color: #e6e6e6;
+        }
+        .dark .cdx-settings-button:hover {
+            background-color: #333;
+        }
+        .dark ::selection {
+            background-color: rgba(245, 231, 105, 0.2);
+        }
+        .ce-paragraph {
+            font-family: 'Merriweather', serif;
+            font-size: 1.125rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
         }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.292.0",
+    "react": "https://esm.sh/react@19.0.0",
+    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.292.0?external=react,react-dom",
     "@editorjs/editorjs": "https://esm.sh/@editorjs/editorjs@2.29.0",
     "@editorjs/header": "https://esm.sh/@editorjs/header@2.8.1",
     "@editorjs/list": "https://esm.sh/@editorjs/list@1.9.0",
@@ -166,12 +232,6 @@
     "@editorjs/quote": "https://esm.sh/@editorjs/quote@2.6.0",
     "@editorjs/embed": "https://esm.sh/@editorjs/embed@2.7.0",
     "@editorjs/marker": "https://esm.sh/@editorjs/marker@1.4.0",
-    "@tiptap/react": "https://aistudiocdn.com/@tiptap/react@^3.11.0",
-    "@tiptap/starter-kit": "https://aistudiocdn.com/@tiptap/starter-kit@^3.11.0",
-    "@tiptap/extension-image": "https://aistudiocdn.com/@tiptap/extension-image@^3.11.0",
-    "@tiptap/extension-link": "https://aistudiocdn.com/@tiptap/extension-link@^3.11.0",
-    "@tiptap/extension-placeholder": "https://aistudiocdn.com/@tiptap/extension-placeholder@^3.11.0",
-    "@tiptap/extension-code-block": "https://aistudiocdn.com/@tiptap/extension-code-block@^3.11.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
@@ -182,4 +242,3 @@
     <div id="root"></div>
 </body>
 </html>
-    

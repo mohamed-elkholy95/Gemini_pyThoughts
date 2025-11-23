@@ -17,11 +17,12 @@ import { PersonProfilePage } from './components/PersonProfilePage';
 import { EditorPage } from './components/EditorPage';
 import { MOCK_ARTICLES } from './constants';
 import { Article } from './types';
+import { SettingsPage } from './components/SettingsPage';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [currentView, setCurrentView] = useState<'landing' | 'feed' | 'article' | 'storage' | 'profile' | 'stats' | 'drafts' | 'following' | 'person-profile' | 'editor'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'feed' | 'article' | 'storage' | 'profile' | 'stats' | 'drafts' | 'following' | 'person-profile' | 'editor' | 'settings'>('landing');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<string>('');
 
@@ -36,6 +37,13 @@ function App() {
       setTheme(savedTheme);
     } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
+    }
+  }, []);
+
+  // Check screen size to auto-close sidebar on mobile initially
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
     }
   }, []);
 
@@ -57,7 +65,7 @@ function App() {
   const handleArticleClick = (article: Article) => {
     setSelectedArticle(article);
     setCurrentView('article');
-    // On mobile/tablet, maybe close sidebar for focus
+    // On mobile/tablet, close sidebar for focus
     if (window.innerWidth < 1024) setSidebarOpen(false);
   };
 
@@ -73,6 +81,9 @@ function App() {
   const handleNavigation = (view: string) => {
     if (view === 'feed') navigateHome();
     else setCurrentView(view as any);
+    
+    // Auto close on mobile after navigation
+    if (window.innerWidth < 768) setSidebarOpen(false);
   };
 
   const handlePersonClick = (name: string) => {
@@ -221,7 +232,7 @@ function App() {
                                 <AvatarMenuItem icon={BarChart2} label="Stats" onClick={() => { setCurrentView('stats'); setAvatarMenuOpen(false); }} />
                             </div>
                             <div className="border-t border-light-border dark:border-dark-border py-2">
-                                <AvatarMenuItem icon={Settings} label="Settings" />
+                                <AvatarMenuItem icon={Settings} label="Settings" onClick={() => { setCurrentView('settings'); setAvatarMenuOpen(false); }} />
                                 <AvatarMenuItem icon={HelpCircle} label="Help" />
                             </div>
                             <div className="border-t border-light-border dark:border-dark-border py-2">
@@ -240,6 +251,14 @@ function App() {
       {/* 2. Main Layout Grid */}
       <div className={`flex justify-center transition-all duration-300 relative max-w-[1600px] mx-auto`}>
         
+        {/* Mobile Backdrop Overlay - Increased z-index to 45 */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-45 md:hidden animate-fade-in"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Left Sidebar */}
         <SidebarLeft isOpen={isSidebarOpen} onNavigate={handleNavigation} onPersonClick={handlePersonClick} activeView={currentView} />
 
@@ -284,6 +303,9 @@ function App() {
           ) : currentView === 'person-profile' ? (
              /* Person Profile View */
              <PersonProfilePage name={selectedPerson} />
+          ) : currentView === 'settings' ? (
+             /* Settings View */
+             <SettingsPage />
           ) : null}
         </main>
 
