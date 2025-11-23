@@ -60,9 +60,10 @@ export const drafts = pgTable('drafts', {
   excerpt: text('excerpt'),
   coverImage: text('cover_image'),
   slug: text('slug').unique(),
-  status: text('status', { enum: ['draft', 'published', 'archived'] }).notNull().default('draft'),
+  status: text('status', { enum: ['draft', 'published', 'archived', 'scheduled'] }).notNull().default('draft'),
   authorId: text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   publishedAt: timestamp('published_at'),
+  scheduledAt: timestamp('scheduled_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   wordCount: integer('word_count').default(0),
@@ -73,6 +74,7 @@ export const drafts = pgTable('drafts', {
   index('drafts_author_idx').on(table.authorId),
   index('drafts_status_idx').on(table.status),
   index('drafts_created_idx').on(table.createdAt),
+  index('drafts_scheduled_idx').on(table.scheduledAt),
 ]);
 
 // Draft versions for version control

@@ -20,7 +20,12 @@ import { uploadRouter } from './routes/upload.js';
 import { docsRouter } from './routes/docs.js';
 import { adminRouter } from './routes/admin.js';
 import { searchRouter } from './routes/search.js';
+import { webhooksRouter } from './routes/webhooks.js';
+import { seoRouter } from './routes/seo.js';
 import { serveStatic } from '@hono/node-server/serve-static';
+import { lifecycleService } from './services/lifecycle.service.js';
+import { cacheService } from './services/cache.service.js';
+import { schedulerService } from './services/scheduler.service.js';
 
 const app = new Hono();
 
@@ -97,6 +102,10 @@ app.route('/api/upload', uploadRouter);
 app.route('/api/docs', docsRouter);
 app.route('/api/admin', adminRouter);
 app.route('/api/search', searchRouter);
+app.route('/api/webhooks', webhooksRouter);
+
+// SEO routes (RSS, Sitemap, robots.txt)
+app.route('/', seoRouter);
 
 // Serve uploaded files
 app.use('/uploads/*', serveStatic({ root: './' }));
@@ -116,9 +125,15 @@ app.get('/api', (c) => {
       notifications: '/api/notifications',
       upload: '/api/upload',
       search: '/api/search',
+      webhooks: '/api/webhooks',
       admin: '/api/admin',
     },
     docs: '/api/docs',
+    seo: {
+      rss: '/rss',
+      sitemap: '/sitemap.xml',
+      robots: '/robots.txt',
+    },
   });
 });
 
@@ -130,15 +145,30 @@ app.notFound(notFoundHandler);
 const port = parseInt(env.PORT);
 
 async function start() {
+  // Initialize lifecycle service (signal handlers)
+  lifecycleService.init();
+
   // Check database connection
   const dbConnected = await checkDatabaseConnection();
   if (!dbConnected) {
     logger.error('Failed to connect to database');
     process.exit(1);
   }
-
   logger.info('Database connected');
 
+  // Connect to Redis cache (optional - degrades gracefully)
+  const cacheConnected = await cacheService.connect();
+  if (cacheConnected) {
+    logger.info('Redis cache connected');
+  } else {
+    logger.warn('Redis cache not available, running without cache');
+  }
+
+  // Start scheduled publishing scheduler
+  schedulerService.startScheduler(1); // Check every minute
+  logger.info('Publication scheduler started');
+
+  // Start HTTP server
   serve(
     {
       fetch: app.fetch,
