@@ -20,9 +20,16 @@ import { Article } from './types';
 import { SettingsPage } from './components/SettingsPage';
 
 function App() {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  // Initialize sidebar based on screen width (closed on mobile, open on desktop)
+  const [isSidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
+  
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [currentView, setCurrentView] = useState<'landing' | 'feed' | 'article' | 'storage' | 'profile' | 'stats' | 'drafts' | 'following' | 'person-profile' | 'editor' | 'settings'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'feed' | 'article' | 'storage' | 'profile' | 'stats' | 'drafts' | 'following' | 'person-profile' | 'editor' | 'settings' | 'dashboard'>('landing');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<string>('');
 
@@ -37,13 +44,6 @@ function App() {
       setTheme(savedTheme);
     } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
-    }
-  }, []);
-
-  // Check screen size to auto-close sidebar on mobile initially
-  useEffect(() => {
-    if (window.innerWidth < 768) {
-      setSidebarOpen(false);
     }
   }, []);
 
@@ -62,16 +62,22 @@ function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  const closeSidebarMobile = () => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
+
   const handleArticleClick = (article: Article) => {
     setSelectedArticle(article);
     setCurrentView('article');
-    // On mobile/tablet, close sidebar for focus
-    if (window.innerWidth < 1024) setSidebarOpen(false);
+    closeSidebarMobile();
   };
 
   const navigateHome = () => {
     setCurrentView('feed');
     setSelectedArticle(null);
+    closeSidebarMobile();
   };
 
   const enterApp = () => {
@@ -81,14 +87,13 @@ function App() {
   const handleNavigation = (view: string) => {
     if (view === 'feed') navigateHome();
     else setCurrentView(view as any);
-    
-    // Auto close on mobile after navigation
-    if (window.innerWidth < 768) setSidebarOpen(false);
+    closeSidebarMobile();
   };
 
   const handlePersonClick = (name: string) => {
     setSelectedPerson(name);
     setCurrentView('person-profile');
+    closeSidebarMobile();
   };
 
   // If on landing page, show separate layout
@@ -221,24 +226,49 @@ function App() {
                     <>
                         <div className="fixed inset-0 z-40" onClick={() => setAvatarMenuOpen(false)} />
                         <div className="absolute right-0 mt-3 w-64 bg-light-surface dark:bg-dark-surface rounded-lg shadow-xl border border-light-border dark:border-dark-border z-50 overflow-hidden animate-fade-in-up origin-top-right">
-                            <div className="px-5 py-4 border-b border-light-border dark:border-dark-border">
-                                <div className="font-semibold text-light-textMain dark:text-dark-textMain truncate">Felix</div>
-                                <div className="text-sm text-light-textSec dark:text-dark-textSec truncate">@felix_developer</div>
+                            <div className="px-5 py-4 border-b border-light-border dark:border-dark-border flex items-center gap-3">
+                                <div 
+                                    className="w-10 h-10 rounded-full bg-cover border border-gray-200 dark:border-gray-700" 
+                                    style={{backgroundImage: "url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix')"}}
+                                ></div>
+                                <div className="min-w-0">
+                                    <div className="font-semibold text-light-textMain dark:text-dark-textMain truncate">Felix</div>
+                                    <div className="text-xs text-light-textSec dark:text-dark-textSec hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">View profile</div>
+                                </div>
                             </div>
+                            
                             <div className="py-2">
-                                <AvatarMenuItem icon={User} label="Profile" onClick={() => { setCurrentView('profile'); setAvatarMenuOpen(false); }} />
-                                <AvatarMenuItem icon={Book} label="Storage" onClick={() => { setCurrentView('storage'); setAvatarMenuOpen(false); }} />
-                                <AvatarMenuItem icon={FileText} label="Drafts" onClick={() => { setCurrentView('drafts'); setAvatarMenuOpen(false); }} />
-                                <AvatarMenuItem icon={BarChart2} label="Stats" onClick={() => { setCurrentView('stats'); setAvatarMenuOpen(false); }} />
-                            </div>
-                            <div className="border-t border-light-border dark:border-dark-border py-2">
                                 <AvatarMenuItem icon={Settings} label="Settings" onClick={() => { setCurrentView('settings'); setAvatarMenuOpen(false); }} />
+                                <div className="px-5 py-2.5 text-sm text-light-textSec dark:text-dark-textSec hover:text-light-textMain dark:hover:text-dark-textMain hover:bg-light-secondary dark:hover:bg-dark-secondary cursor-pointer flex flex-col gap-1 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <User size={18} /> Membership
+                                    </div>
+                                    <span className="text-xs pl-8">Member since Nov 2025</span>
+                                </div>
                                 <AvatarMenuItem icon={HelpCircle} label="Help" />
                             </div>
+
                             <div className="border-t border-light-border dark:border-dark-border py-2">
-                                 <div className="px-5 py-2.5 text-sm text-light-textSec dark:text-dark-textSec hover:text-light-textMain dark:hover:text-dark-textMain hover:bg-light-secondary dark:hover:bg-dark-secondary cursor-pointer flex items-center gap-3 transition-colors" onClick={() => setCurrentView('landing')}>
-                                    <LogOut size={18} /> Sign out
+                                <div className="px-5 py-2.5 text-sm text-light-textSec dark:text-dark-textSec hover:text-light-textMain dark:hover:text-dark-textMain hover:bg-light-secondary dark:hover:bg-dark-secondary cursor-pointer transition-colors">
+                                    Apply to the Partner Program
+                                </div>
+                            </div>
+
+                            <div className="border-t border-light-border dark:border-dark-border py-2">
+                                 <div className="px-5 py-2.5 text-sm cursor-pointer hover:bg-light-secondary dark:hover:bg-dark-secondary transition-colors" onClick={() => setCurrentView('landing')}>
+                                    <div className="text-light-textSec dark:text-dark-textSec mb-1">Sign out</div>
+                                    <div className="text-xs text-light-textSec dark:text-dark-textSec opacity-70">mo********@gmail.com</div>
                                  </div>
+                            </div>
+                            
+                            <div className="border-t border-light-border dark:border-dark-border py-3 px-5 text-[11px] text-light-textSec dark:text-dark-textSec flex flex-wrap gap-x-3 gap-y-1">
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">About</span>
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">Blog</span>
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">Careers</span>
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">Privacy</span>
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">Terms</span>
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">Text to speech</span>
+                                <span className="hover:text-light-textMain dark:hover:text-dark-textMain cursor-pointer">More</span>
                             </div>
                         </div>
                     </>
@@ -251,19 +281,17 @@ function App() {
       {/* 2. Main Layout Grid */}
       <div className={`flex justify-center transition-all duration-300 relative max-w-[1600px] mx-auto`}>
         
-        {/* Mobile Backdrop Overlay - Increased z-index to 45 */}
-        {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 z-45 md:hidden animate-fade-in"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
         {/* Left Sidebar */}
+        {isSidebarOpen && window.innerWidth < 768 && (
+            <div 
+                className="fixed inset-0 bg-black/50 z-45 animate-fade-in md:hidden" 
+                onClick={() => setSidebarOpen(false)}
+            />
+        )}
         <SidebarLeft isOpen={isSidebarOpen} onNavigate={handleNavigation} onPersonClick={handlePersonClick} activeView={currentView} />
 
         {/* Center Content */}
-        <main className={`flex-1 min-w-0 bg-light-surface dark:bg-dark-surface border-r border-light-border dark:border-dark-border min-h-[calc(100vh-57px)] transition-all duration-300 pl-[2cm] md:pl-8`}>
+        <main className={`flex-1 min-w-0 bg-light-surface dark:bg-dark-surface md:border-r border-light-border dark:border-dark-border min-h-[calc(100vh-57px)] transition-all duration-300 w-full pl-0 md:pl-8`}>
           
           {currentView === 'feed' ? (
             <>
@@ -306,13 +334,18 @@ function App() {
           ) : currentView === 'settings' ? (
              /* Settings View */
              <SettingsPage />
-          ) : null}
+          ) : (
+             /* Dashboard View Placeholder */
+             <div className="flex items-center justify-center h-full text-light-textSec dark:text-dark-textSec">
+                Dashboard Content Coming Soon
+             </div>
+          )}
         </main>
 
         {/* Right Sidebar Logic */}
         {currentView === 'profile' ? (
             <SidebarRightProfile />
-        ) : (currentView === 'feed' || currentView === 'storage' || currentView === 'stats' || currentView === 'following' || currentView === 'drafts' || currentView === 'person-profile') ? (
+        ) : (currentView === 'feed' || currentView === 'storage' || currentView === 'stats' || currentView === 'following' || currentView === 'drafts' || currentView === 'person-profile' || currentView === 'dashboard') ? (
             <SidebarRight />
         ) : (
             selectedArticle && <SidebarRightArticle article={selectedArticle} />
