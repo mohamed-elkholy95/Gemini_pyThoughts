@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pythoughts-uploads
+  namespace: pythoughts
+  labels:
+    app.kubernetes.io/name: pythoughts
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pythoughts
+  labels:
+    app.kubernetes.io/name: pythoughts
+    app.kubernetes.io/part-of: pythoughts

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pythoughts-config
+  namespace: pythoughts
+  labels:
+    app.kubernetes.io/name: pythoughts
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  CORS_ORIGIN: "https://pythoughts.example.com"
+  RATE_LIMIT_MAX: "100"
+  RATE_LIMIT_WINDOW_MS: "60000"
+  CACHE_TTL: "3600"
+  MAX_UPLOAD_SIZE: "10485760"
+  TRACE_SAMPLE_RATE: "0.1"
+  SERVICE_NAME: "pythoughts-api"
