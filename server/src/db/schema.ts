@@ -125,6 +125,60 @@ export const bookmarks = pgTable('bookmarks', {
   primaryKey({ columns: [table.userId, table.draftId] }),
 ]);
 
+// Notifications
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: text('type', { enum: ['follow', 'comment', 'reply', 'publish', 'mention', 'like'] }).notNull(),
+  title: text('title').notNull(),
+  message: text('message'),
+  link: text('link'),
+  actorId: text('actor_id').references(() => users.id, { onDelete: 'set null' }),
+  entityType: text('entity_type'),
+  entityId: text('entity_id'),
+  isRead: boolean('is_read').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('notifications_user_idx').on(table.userId),
+  index('notifications_read_idx').on(table.isRead),
+]);
+
+// User preferences
+export const userPreferences = pgTable('user_preferences', {
+  userId: text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  emailNotifications: boolean('email_notifications').notNull().default(true),
+  pushNotifications: boolean('push_notifications').notNull().default(true),
+  notifyNewFollower: boolean('notify_new_follower').notNull().default(true),
+  notifyComments: boolean('notify_comments').notNull().default(true),
+  notifyMentions: boolean('notify_mentions').notNull().default(true),
+  theme: text('theme').default('system'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// Likes
+export const likes = pgTable('likes', {
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  draftId: uuid('draft_id').notNull().references(() => drafts.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.draftId] }),
+  index('likes_draft_idx').on(table.draftId),
+]);
+
+// Article views for analytics
+export const articleViews = pgTable('article_views', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  draftId: uuid('draft_id').notNull().references(() => drafts.id, { onDelete: 'cascade' }),
+  viewerId: text('viewer_id').references(() => users.id, { onDelete: 'set null' }),
+  ipHash: text('ip_hash'),
+  userAgent: text('user_agent'),
+  referrer: text('referrer'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('article_views_draft_idx').on(table.draftId),
+  index('article_views_created_idx').on(table.createdAt),
+]);
+
 // Comments
 export const comments = pgTable('comments', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -228,3 +282,8 @@ export type DraftVersion = typeof draftVersions.$inferSelect;
 export type NewDraftVersion = typeof draftVersions.$inferInsert;
 export type Tag = typeof tags.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
+export type NewNotification = typeof notifications.$inferInsert;
+export type Like = typeof likes.$inferSelect;
+export type ArticleView = typeof articleViews.$inferSelect;
+export type UserPreferences = typeof userPreferences.$inferSelect;
