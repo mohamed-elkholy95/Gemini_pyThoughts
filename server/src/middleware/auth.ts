@@ -40,7 +40,7 @@ export async function requireAuth(c: Context<AuthContext>, next: Next) {
 
     c.set('user', session.user);
     c.set('session', session.session);
-    await next();
+    return next();
   } catch (error) {
     logger.error({ error }, 'Auth middleware error');
     return c.json({ error: 'Unauthorized', message: 'Invalid session' }, 401);

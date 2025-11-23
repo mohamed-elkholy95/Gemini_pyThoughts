@@ -1,5 +1,5 @@
 import { eq, and, desc, sql, ilike, or } from 'drizzle-orm';
-import { db, drafts, draftVersions, draftTags, tags, type EditorJSContent, type Draft, type NewDraft } from '../db/index.js';
+import { db, drafts, draftVersions, draftTags, tags, type EditorJSContent, type Draft } from '../db/index.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { logger } from '../config/logger.js';
 import sanitizeHtml from 'sanitize-html';

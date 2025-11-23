@@ -34,7 +34,7 @@ export async function rateLimit(c: Context, next: Next) {
     c.header('X-RateLimit-Remaining', rateLimiterRes.remainingPoints.toString());
     c.header('X-RateLimit-Reset', new Date(Date.now() + rateLimiterRes.msBeforeNext).toISOString());
 
-    await next();
+    return next();
   } catch (error) {
     if (error instanceof Error) {
       logger.error({ error, ip }, 'Rate limiter error');
@@ -76,7 +76,7 @@ export async function authRateLimit(c: Context, next: Next) {
 
   try {
     await authRateLimiter.consume(ip);
-    await next();
+    return next();
   } catch {
     return c.json(
       {
