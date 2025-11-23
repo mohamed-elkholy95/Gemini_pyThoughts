@@ -257,7 +257,7 @@ function App() {
                             <div className="border-t border-light-border dark:border-dark-border py-2">
                                  <div className="px-5 py-2.5 text-sm cursor-pointer hover:bg-light-secondary dark:hover:bg-dark-secondary transition-colors" onClick={() => setCurrentView('landing')}>
                                     <div className="text-light-textSec dark:text-dark-textSec mb-1">Sign out</div>
-                                    <div className="text-xs text-light-textSec dark:text-dark-textSec opacity-70">mo********@gmail.com</div>
+                                    <div className="text-xs text-light-textSec dark:text-dark-textSec opacity-70">moelkholy1995@gmail.com</div>
                                  </div>
                             </div>
                             
@@ -324,7 +324,7 @@ function App() {
              <StatsPage />
           ) : currentView === 'drafts' ? (
             /* Drafts View */
-             <DraftsPage />
+             <DraftsPage onArticleClick={handleArticleClick} />
           ) : currentView === 'following' ? (
             /* Following View */
              <FollowingPage />
@@ -343,12 +343,12 @@ function App() {
         </main>
 
         {/* Right Sidebar Logic */}
-        {currentView === 'profile' ? (
+        {currentView === 'article' && selectedArticle ? (
+            <SidebarRightArticle article={selectedArticle} />
+        ) : currentView === 'profile' ? (
             <SidebarRightProfile />
-        ) : (currentView === 'feed' || currentView === 'storage' || currentView === 'stats' || currentView === 'following' || currentView === 'drafts' || currentView === 'person-profile' || currentView === 'dashboard') ? (
-            <SidebarRight />
         ) : (
-            selectedArticle && <SidebarRightArticle article={selectedArticle} />
+            (currentView === 'feed' || currentView === 'storage' || currentView === 'stats' || currentView === 'following' || currentView === 'drafts' || currentView === 'person-profile' || currentView === 'dashboard') && <SidebarRight />
         )}
       </div>
     </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { PenTool, Layout, Users, ArrowRight, CheckCircle, Search } from 'lucide-react';
 import { STAFF_PICKS } from '../constants';
@@ -85,7 +86,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           </button>
           <button 
             onClick={onEnter}
-            className="bg-light-accent text-brand-dark px-5 py-2.5 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105"
+            className="bg-light-accent text-[#240046] px-5 py-2.5 rounded-full font-bold hover:bg-white transition-all transform hover:scale-105"
           >
             Get Started
           </button>
@@ -108,15 +109,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             </span>.
           </h1>
           
-          {/* Typing Box */}
-          <div className="w-full max-w-2xl bg-black/20 backdrop-blur-md border border-white/10 rounded-xl p-6 mb-12 shadow-2xl transform hover:scale-[1.01] transition-transform duration-500">
-             <div className="flex gap-2 mb-4">
-                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                 <div className="w-3 h-3 rounded-full bg-green-400"></div>
+          {/* Typing Box / Terminal */}
+          <div className="w-full max-w-2xl bg-[#1c1c1e]/90 backdrop-blur-xl border border-gray-700 rounded-lg shadow-2xl transform hover:scale-[1.01] transition-transform duration-500 overflow-hidden text-left font-mono">
+             {/* Terminal Header */}
+             <div className="bg-[#2c2c2e] px-4 py-2 border-b border-gray-700 flex items-center relative">
+                 <div className="flex gap-2">
+                     <div className="w-3 h-3 rounded-full bg-[#ff5f57] border border-[#e0443e]"></div>
+                     <div className="w-3 h-3 rounded-full bg-[#febc2e] border border-[#d89e24]"></div>
+                     <div className="w-3 h-3 rounded-full bg-[#28c840] border border-[#1aab29]"></div>
+                 </div>
+                 <div className="absolute left-0 right-0 text-center text-xs text-gray-400 font-medium">
+                    user — -zsh — 80x24
+                 </div>
              </div>
-             <div className="text-left font-mono text-lg md:text-xl text-white/90 min-h-[3.5rem] flex items-center">
-                <span className="text-light-accent mr-3 font-bold">{'>'}</span>
+             
+             {/* Terminal Body */}
+             <div className="p-6 text-sm md:text-base text-gray-200 min-h-[5rem] flex items-center">
+                <span className="text-green-400 mr-3 font-bold">$</span>
                 <Typewriter text="Pythoughts: Where good ideas find their home." startDelay={1000} speed={40} />
              </div>
           </div>
@@ -127,13 +136,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-in-up" style={{animationDelay: '0.8s'}}>
             <button 
               onClick={onEnter}
-              className="bg-light-accent text-brand-dark text-lg px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl hover:bg-white transition-all transform hover:-translate-y-1 flex items-center gap-2"
+              className="bg-light-accent text-[#240046] text-lg px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl hover:bg-white transition-all transform hover:-translate-y-1 flex items-center gap-2"
             >
               Start Writing <ArrowRight size={20} />
             </button>
             <button 
               onClick={onEnter}
-              className="bg-transparent border-2 border-white text-white text-lg px-8 py-4 rounded-full font-bold hover:bg-white hover:text-brand-dark transition-all"
+              className="bg-transparent border-2 border-white text-white text-lg px-8 py-4 rounded-full font-bold hover:bg-white hover:text-[#240046] transition-all"
             >
               Read Stories
             </button>
@@ -145,7 +154,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
       <section className="py-24 px-6 bg-light-surface dark:bg-dark-surface">
         <div ref={featuresRef} className={`max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16 transition-all duration-1000 ${featuresVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
           <div className="md:w-1/2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-muteAccent text-brand-dark text-xs font-bold mb-4 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-light-muteAccent text-[#240046] text-xs font-bold mb-4 uppercase tracking-wider">
                <PenTool size={14} /> Created for Writers
             </div>
             <h2 className="font-serif font-bold text-4xl text-light-textMain dark:text-dark-textMain mb-6">
@@ -229,7 +238,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           <div className="text-center mt-12">
             <button 
               onClick={onEnter} 
-              className="text-brand-dark dark:text-white font-bold border-b-2 border-light-accent pb-1 hover:text-brand-teal dark:hover:text-brand-teal transition-colors"
+              className="text-[#240046] dark:text-white font-bold border-b-2 border-light-accent pb-1 hover:text-brand-teal dark:hover:text-brand-teal transition-colors"
             >
               Explore all creators
             </button>

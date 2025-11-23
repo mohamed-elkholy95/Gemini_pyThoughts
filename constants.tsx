@@ -1,3 +1,4 @@
+
 import { Article, StaffPick, Topic } from './types';
 
 export const MOCK_ARTICLES: Article[] = [
@@ -120,11 +121,17 @@ export const STAFF_PICKS: StaffPick[] = [
 ];
 
 export const TOPICS: Topic[] = [
-  { name: 'Technology', link: '#' },
-  { name: 'Mcp Server', link: '#' },
+  { name: 'Python', link: '#' },
+  { name: 'Data Science', link: '#' },
+  { name: 'Machine Learning', link: '#' },
+  { name: 'Productivity', link: '#' },
+  { name: 'React', link: '#' },
+  { name: 'Psychology', link: '#' },
+  { name: 'Design', link: '#' },
+  { name: 'Startup', link: '#' },
+  { name: 'Cryptocurrency', link: '#' },
   { name: 'JavaScript', link: '#' },
-  { name: 'Hacking', link: '#' },
-  { name: 'ChatGPT', link: '#' },
-  { name: 'Vibe Coding', link: '#' },
+  { name: 'Writing', link: '#' },
   { name: 'Self Improvement', link: '#' },
+  { name: 'Technology', link: '#' },
 ];

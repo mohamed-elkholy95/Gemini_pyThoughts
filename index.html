@@ -25,8 +25,8 @@
                     },
                     colors: {
                         brand: {
-                            dark: '#2C3E50',
-                            teal: '#4CA1AF',
+                            dark: '#240046', // Deep Violet
+                            teal: '#9d4edd', // Vibrant Purple (replacing teal)
                         },
                         light: {
                             body: '#ffffff',
@@ -36,8 +36,8 @@
                             textMain: '#242424',
                             textSec: '#6b6b6b',
                             border: '#f2f2f2',
-                            accent: '#F5E769', // Updated yellow
-                            muteAccent: 'rgba(245, 231, 105, 0.2)', // 20% opacity
+                            accent: '#ff9e00', // Golden Orange pop
+                            muteAccent: 'rgba(255, 158, 0, 0.15)', // Muted orange
                             hover: '#f5f5f5',
                         },
                         dark: {
@@ -48,12 +48,12 @@
                             textMain: '#e6e6e6',
                             textSec: '#a8a8a8',
                             border: '#2f2f2f',
-                            accent: '#F5E769',
+                            accent: '#ff9e00',
                             hover: '#1f1f1f',
                         }
                     },
                     backgroundImage: {
-                        'hero-gradient': 'linear-gradient(45deg, #2C3E50, #4CA1AF)',
+                        'hero-gradient': 'linear-gradient(135deg, #240046 0%, #5a189a 50%, #7b2cbf 100%)', // Royal Velvet Gradient
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
@@ -199,7 +199,7 @@
             background-color: #333;
         }
         .dark .ce-inline-tool--active {
-            color: #F5E769;
+            color: #ff9e00;
         }
         .dark .cdx-settings-button {
             color: #e6e6e6;
@@ -208,7 +208,7 @@
             background-color: #333;
         }
         .dark ::selection {
-            background-color: rgba(245, 231, 105, 0.2);
+            background-color: rgba(255, 158, 0, 0.2);
         }
         .ce-paragraph {
             font-family: 'Merriweather', serif;
@@ -232,8 +232,8 @@
     "@editorjs/quote": "https://esm.sh/@editorjs/quote@2.6.0",
     "@editorjs/embed": "https://esm.sh/@editorjs/embed@2.7.0",
     "@editorjs/marker": "https://esm.sh/@editorjs/marker@1.4.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
   }
 }
 </script>

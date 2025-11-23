@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Article } from '../types';
 import { Mail } from 'lucide-react';
@@ -44,12 +45,12 @@ export const SidebarRightArticle: React.FC<SidebarRightArticleProps> = ({ articl
             <div className="font-semibold text-base mb-4 text-light-textMain dark:text-dark-textMain">
                 On this page
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="relative flex flex-col gap-2 pl-4 border-l-2 border-light-border dark:border-dark-border">
                 {article.toc.map((item, index) => (
                     <a 
                         key={item.id} 
                         href={`#${item.id}`} 
-                        className={`text-sm hover:text-light-textMain dark:hover:text-dark-textMain transition-colors ${index === 0 ? 'text-light-textMain dark:text-dark-textMain font-medium' : 'text-light-textSec dark:text-dark-textSec'}`}
+                        className={`text-sm hover:text-light-textMain dark:hover:text-dark-textMain transition-colors block py-1 ${index === 0 ? 'text-light-textMain dark:text-dark-textMain font-medium -ml-[18px] border-l-2 border-light-textMain dark:border-dark-textMain pl-4' : 'text-light-textSec dark:text-dark-textSec'}`}
                         onClick={(e) => {
                             e.preventDefault();
                             document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
