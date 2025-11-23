@@ -1,169 +1,178 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { Hono } from 'hono';
+// API Integration Tests
+import { describe, it, expect } from 'vitest';
+import app from '../../src/index.js';
 
-// Create a minimal test app
-const createTestApp = () => {
-  const app = new Hono();
+// Helper to make requests to the app
+async function request(
+  path: string,
+  options: {
+    method?: string;
+    body?: unknown;
+    headers?: Record<string, string>;
+  } = {}
+) {
+  const { method = 'GET', body, headers = {} } = options;
 
-  // Health endpoint
-  app.get('/health', (c) => {
-    return c.json({ status: 'healthy' });
+  const req = new Request(`http://localhost${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : undefined,
   });
 
-  // API info endpoint
-  app.get('/api', (c) => {
-    return c.json({
-      name: 'Pythoughts API',
-      version: '1.0.0',
-    });
+  return app.fetch(req);
+}
+
+describe('Health Endpoints', () => {
+  it('GET /health should return health status', async () => {
+    const res = await request('/health');
+    expect(res.status).toBe(200);
+
+    const data = await res.json();
+    expect(data).toHaveProperty('status');
+    expect(data).toHaveProperty('timestamp');
+    expect(data).toHaveProperty('services');
   });
 
-  // Mock drafts endpoint (requires auth in real app)
-  app.get('/api/drafts', (c) => {
-    const authHeader = c.req.header('Authorization');
-    if (!authHeader) {
-      return c.json({ error: 'Unauthorized' }, 401);
-    }
-    return c.json({ drafts: [], pagination: { total: 0, page: 1, limit: 20, pages: 0 } });
+  it('GET /metrics should return Prometheus metrics', async () => {
+    const res = await request('/metrics');
+    expect(res.status).toBe(200);
+
+    const text = await res.text();
+    expect(text).toContain('http_requests');
   });
+});
 
-  // Mock create draft endpoint
-  app.post('/api/drafts', async (c) => {
-    const authHeader = c.req.header('Authorization');
-    if (!authHeader) {
-      return c.json({ error: 'Unauthorized' }, 401);
-    }
+describe('API Info', () => {
+  it('GET /api should return API information', async () => {
+    const res = await request('/api');
+    expect(res.status).toBe(200);
 
-    const body = await c.req.json();
-    return c.json({
-      draft: {
-        id: 'test-uuid',
-        title: body.title || 'Untitled',
-        content: body.content || null,
-        status: 'draft',
-        createdAt: new Date().toISOString(),
-      },
-    }, 201);
+    const data = await res.json();
+    expect(data.name).toBe('Pythoughts API');
+    expect(data.version).toBe('1.0.0');
+    expect(data.endpoints).toHaveProperty('auth');
+    expect(data.endpoints).toHaveProperty('drafts');
+    expect(data.endpoints).toHaveProperty('articles');
   });
+});
 
-  return app;
-};
-
-describe('API Integration Tests', () => {
-  let app: Hono;
-
-  beforeAll(() => {
-    app = createTestApp();
-  });
-
-  afterAll(() => {
-    // Cleanup
-  });
-
-  describe('Health Endpoints', () => {
-    it('GET /health should return healthy status', async () => {
-      const res = await app.request('/health');
+describe('Articles API (Public)', () => {
+  describe('GET /api/articles', () => {
+    it('should return paginated articles', async () => {
+      const res = await request('/api/articles');
       expect(res.status).toBe(200);
 
       const data = await res.json();
-      expect(data.status).toBe('healthy');
+      expect(data).toHaveProperty('articles');
+      expect(data).toHaveProperty('pagination');
+      expect(Array.isArray(data.articles)).toBe(true);
     });
-  });
 
-  describe('API Info', () => {
-    it('GET /api should return API info', async () => {
-      const res = await app.request('/api');
+    it('should support pagination parameters', async () => {
+      const res = await request('/api/articles?page=1&limit=5');
       expect(res.status).toBe(200);
 
       const data = await res.json();
-      expect(data.name).toBe('Pythoughts API');
-      expect(data.version).toBe('1.0.0');
+      expect(data.pagination.page).toBe(1);
+      expect(data.pagination.limit).toBe(5);
     });
   });
 
-  describe('Drafts API', () => {
-    it('GET /api/drafts should return 401 without auth', async () => {
-      const res = await app.request('/api/drafts');
-      expect(res.status).toBe(401);
-    });
-
-    it('GET /api/drafts should return drafts with auth', async () => {
-      const res = await app.request('/api/drafts', {
-        headers: {
-          Authorization: 'Bearer test-token',
-        },
-      });
+  describe('GET /api/articles/featured', () => {
+    it('should return featured articles', async () => {
+      const res = await request('/api/articles/featured');
       expect(res.status).toBe(200);
 
       const data = await res.json();
-      expect(data).toHaveProperty('drafts');
+      expect(data).toHaveProperty('articles');
+      expect(Array.isArray(data.articles)).toBe(true);
+    });
+
+    it('should respect limit parameter', async () => {
+      const res = await request('/api/articles/featured?limit=3');
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data.articles.length).toBeLessThanOrEqual(3);
+    });
+  });
+
+  describe('GET /api/articles/recommended', () => {
+    it('should return recommended articles', async () => {
+      const res = await request('/api/articles/recommended');
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data).toHaveProperty('articles');
+    });
+  });
+});
+
+describe('Tags API', () => {
+  describe('GET /api/tags', () => {
+    it('should return list of tags', async () => {
+      const res = await request('/api/tags');
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data).toHaveProperty('tags');
+      expect(Array.isArray(data.tags)).toBe(true);
+    });
+  });
+
+  describe('GET /api/tags/popular', () => {
+    it('should return popular tags', async () => {
+      const res = await request('/api/tags/popular');
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data).toHaveProperty('tags');
+    });
+  });
+});
+
+describe('Feed API', () => {
+  describe('GET /api/feed', () => {
+    it('should return feed articles', async () => {
+      const res = await request('/api/feed');
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data).toHaveProperty('articles');
       expect(data).toHaveProperty('pagination');
     });
+  });
+});
 
-    it('POST /api/drafts should create a draft with auth', async () => {
-      const res = await app.request('/api/drafts', {
-        method: 'POST',
-        headers: {
-          Authorization: 'Bearer test-token',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: 'My Test Draft',
-          content: {
-            blocks: [
-              { type: 'paragraph', data: { text: 'Hello world' } },
-            ],
-          },
-        }),
-      });
-
-      expect(res.status).toBe(201);
-
-      const data = await res.json();
-      expect(data.draft.title).toBe('My Test Draft');
-      expect(data.draft.status).toBe('draft');
+describe('Search API', () => {
+  describe('GET /api/search', () => {
+    it('should require query parameter', async () => {
+      const res = await request('/api/search');
+      expect(res.status).toBe(400);
     });
 
-    it('POST /api/drafts should return 401 without auth', async () => {
-      const res = await app.request('/api/drafts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title: 'Test' }),
-      });
+    it('should return search results', async () => {
+      const res = await request('/api/search?q=test');
+      expect(res.status).toBe(200);
 
-      expect(res.status).toBe(401);
+      const data = await res.json();
+      expect(data).toHaveProperty('articles');
     });
   });
 });
 
 describe('Error Handling', () => {
   it('should return 404 for unknown routes', async () => {
-    const app = createTestApp();
-    const res = await app.request('/unknown-route');
+    const res = await request('/api/nonexistent');
     expect(res.status).toBe(404);
   });
-});
 
-describe('Request Validation', () => {
-  it('should handle malformed JSON gracefully', async () => {
-    const app = new Hono();
-    app.post('/test', async (c) => {
-      try {
-        await c.req.json();
-        return c.json({ success: true });
-      } catch {
-        return c.json({ error: 'Invalid JSON' }, 400);
-      }
-    });
-
-    const res = await app.request('/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: 'not valid json',
-    });
-
-    expect(res.status).toBe(400);
+  it('should return JSON error response', async () => {
+    const res = await request('/api/nonexistent');
+    const data = await res.json();
+    expect(data).toHaveProperty('error');
   });
 });

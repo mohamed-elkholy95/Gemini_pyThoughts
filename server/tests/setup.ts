@@ -1,24 +1,23 @@
-import { beforeAll, afterAll, afterEach } from 'vitest';
+// Test Setup
+import { vi } from 'vitest';
 
-// Set test environment variables
+// Mock logger to reduce noise in tests
+vi.mock('../src/config/logger.js', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: () => ({
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+    }),
+  },
+}));
+
+// Set test environment
 process.env.NODE_ENV = 'test';
-process.env.PORT = '3002';
-process.env.BETTER_AUTH_SECRET = 'test-secret-key-for-testing-min-32-characters';
-process.env.BETTER_AUTH_URL = 'http://localhost:3002';
-process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/pythoughts_test';
-process.env.CORS_ORIGIN = 'http://localhost:3000';
-
-// Global test setup
-beforeAll(async () => {
-  // Add any global setup here
-  console.log('Test suite starting...');
-});
-
-afterAll(async () => {
-  // Add any global cleanup here
-  console.log('Test suite finished');
-});
-
-afterEach(async () => {
-  // Reset any mocks after each test
-});
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/pythoughts_test';
+process.env.REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379/1';

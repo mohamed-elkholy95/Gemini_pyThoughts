@@ -5,23 +5,14 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['tests/**/*.test.ts'],
-    exclude: ['tests/e2e/**'],
+    exclude: ['node_modules', 'dist'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'tests/',
-        '**/*.d.ts',
-        'drizzle.config.ts',
-      ],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.d.ts', 'src/types/**'],
     },
-    setupFiles: ['./tests/setup.ts'],
-    testTimeout: 10000,
-  },
-  resolve: {
-    alias: {
-      '@': './src',
-    },
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
 });
