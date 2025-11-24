@@ -1,6 +1,7 @@
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db, notifications, users, userPreferences } from '../db/index.js';
 import { logger } from '../config/logger.js';
+import { realtimeService } from './realtime.service.js';
 
 type NotificationType = 'follow' | 'comment' | 'reply' | 'publish' | 'mention' | 'like';
 
@@ -34,6 +35,16 @@ export const notificationService = {
       .returning();
 
     logger.info({ notificationId: notification.id, userId: input.userId, type: input.type }, 'Notification created');
+
+    // Send real-time notification via SSE
+    realtimeService.notifyUser(input.userId, {
+      id: notification.id,
+      type: input.type,
+      title: input.title,
+      message: input.message,
+      link: input.link,
+    });
+
     return notification;
   },
 

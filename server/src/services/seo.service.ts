@@ -356,37 +356,204 @@ Allow: /api/users
     return tags;
   },
 
-  // Generate JSON-LD structured data for an article
+  // Generate JSON-LD structured data for an article (BlogPosting schema)
   generateArticleJsonLd(article: {
     title: string;
     description: string;
     url: string;
     image?: string;
-    author: { name: string; url: string };
+    author: { name: string; url: string; image?: string };
     publishedAt: Date;
     updatedAt?: Date;
+    wordCount?: number;
+    tags?: string[];
+    readingTime?: number;
   }): string {
-    const jsonLd = {
+    const jsonLd: Record<string, unknown> = {
       '@context': 'https://schema.org',
-      '@type': 'Article',
+      '@type': 'BlogPosting',
       headline: article.title,
       description: article.description,
       url: article.url,
-      image: article.image,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': article.url,
+      },
       author: {
         '@type': 'Person',
         name: article.author.name,
         url: article.author.url,
+        ...(article.author.image && { image: article.author.image }),
       },
       publisher: {
         '@type': 'Organization',
         name: APP_NAME,
         url: APP_URL,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${APP_URL}/logo.png`,
+        },
       },
       datePublished: article.publishedAt.toISOString(),
       dateModified: (article.updatedAt || article.publishedAt).toISOString(),
     };
 
+    if (article.image) {
+      jsonLd.image = {
+        '@type': 'ImageObject',
+        url: article.image,
+        width: 1200,
+        height: 630,
+      };
+    }
+
+    if (article.wordCount) {
+      jsonLd.wordCount = article.wordCount;
+    }
+
+    if (article.readingTime) {
+      jsonLd.timeRequired = `PT${article.readingTime}M`;
+    }
+
+    if (article.tags && article.tags.length > 0) {
+      jsonLd.keywords = article.tags.join(', ');
+    }
+
     return JSON.stringify(jsonLd);
+  },
+
+  // Generate JSON-LD for a person/author profile
+  generatePersonJsonLd(person: {
+    name: string;
+    url: string;
+    image?: string;
+    bio?: string;
+    jobTitle?: string;
+    sameAs?: string[]; // Social profile URLs
+  }): string {
+    const jsonLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: person.name,
+      url: person.url,
+    };
+
+    if (person.image) jsonLd.image = person.image;
+    if (person.bio) jsonLd.description = person.bio;
+    if (person.jobTitle) jsonLd.jobTitle = person.jobTitle;
+    if (person.sameAs && person.sameAs.length > 0) jsonLd.sameAs = person.sameAs;
+
+    return JSON.stringify(jsonLd);
+  },
+
+  // Generate JSON-LD for organization/website
+  generateOrganizationJsonLd(): string {
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: APP_NAME,
+      url: APP_URL,
+      logo: `${APP_URL}/logo.png`,
+      sameAs: [
+        // Add social media URLs here
+      ],
+    });
+  },
+
+  // Generate JSON-LD for website with search action
+  generateWebsiteJsonLd(): string {
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: APP_NAME,
+      url: APP_URL,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${APP_URL}/search?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    });
+  },
+
+  // Generate JSON-LD for breadcrumbs
+  generateBreadcrumbJsonLd(items: Array<{ name: string; url: string }>): string {
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    });
+  },
+
+  // Generate comprehensive SEO metadata for an article
+  async generateArticleSEO(articleId: string): Promise<{
+    meta: Record<string, string>;
+    jsonLd: string[];
+  } | null> {
+    const [article] = await db
+      .select({
+        id: drafts.id,
+        title: drafts.title,
+        excerpt: drafts.excerpt,
+        slug: drafts.slug,
+        coverImage: drafts.coverImage,
+        publishedAt: drafts.publishedAt,
+        updatedAt: drafts.updatedAt,
+        authorId: drafts.authorId,
+        authorName: users.name,
+        authorImage: users.image,
+        authorBio: users.bio,
+      })
+      .from(drafts)
+      .innerJoin(users, eq(drafts.authorId, users.id))
+      .where(eq(drafts.id, articleId));
+
+    if (!article) return null;
+
+    const articleUrl = `${APP_URL}/article/${article.slug || article.id}`;
+    const authorUrl = `${APP_URL}/profile/${article.authorId}`;
+
+    const meta = this.generateOGTags({
+      title: article.title,
+      description: article.excerpt || '',
+      url: articleUrl,
+      image: article.coverImage || undefined,
+      type: 'article',
+      author: article.authorName || undefined,
+      publishedAt: article.publishedAt || undefined,
+    });
+
+    // Add canonical URL
+    meta['canonical'] = articleUrl;
+
+    const jsonLd = [
+      this.generateArticleJsonLd({
+        title: article.title,
+        description: article.excerpt || '',
+        url: articleUrl,
+        image: article.coverImage || undefined,
+        author: {
+          name: article.authorName || 'Unknown',
+          url: authorUrl,
+          image: article.authorImage || undefined,
+        },
+        publishedAt: article.publishedAt || new Date(),
+        updatedAt: article.updatedAt,
+      }),
+      this.generateBreadcrumbJsonLd([
+        { name: 'Home', url: APP_URL },
+        { name: 'Articles', url: `${APP_URL}/explore` },
+        { name: article.title, url: articleUrl },
+      ]),
+    ];
+
+    return { meta, jsonLd };
   },
 };

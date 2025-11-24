@@ -30,6 +30,9 @@ import { readingListsRouter } from './routes/readingLists.js';
 import { reportsRouter } from './routes/reports.js';
 import { privacyRouter } from './routes/privacy.js';
 import { gamificationRouter } from './routes/gamification.js';
+import { realtimeRouter } from './routes/realtime.js';
+import { activityRouter } from './routes/activity.js';
+import { realtimeService } from './services/realtime.service.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
 import { cacheService } from './services/cache.service.js';
@@ -126,6 +129,8 @@ app.route('/api/reading-lists', readingListsRouter);
 app.route('/api/reports', reportsRouter);
 app.route('/api/privacy', privacyRouter);
 app.route('/api/gamification', gamificationRouter);
+app.route('/api/realtime', realtimeRouter);
+app.route('/api/activity', activityRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -157,6 +162,8 @@ app.get('/api', (c) => {
       reports: '/api/reports',
       privacy: '/api/privacy',
       gamification: '/api/gamification',
+      realtime: '/api/realtime',
+      activity: '/api/activity',
     },
     docs: '/api/docs',
     seo: {
@@ -197,6 +204,10 @@ async function start() {
   // Start scheduled publishing scheduler
   schedulerService.startScheduler(1); // Check every minute
   logger.info('Publication scheduler started');
+
+  // Start realtime service (SSE heartbeats)
+  realtimeService.start();
+  logger.info('Realtime service started');
 
   // Start HTTP server
   serve(
