@@ -35,6 +35,7 @@ import { activityRouter } from './routes/activity.js';
 import { recommendationsRouter } from './routes/recommendations.js';
 import { moderationRouter } from './routes/moderation.js';
 import { sharingRouter } from './routes/sharing.js';
+import { exportRouter } from './routes/export.js';
 import { realtimeService } from './services/realtime.service.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
@@ -137,6 +138,7 @@ app.route('/api/activity', activityRouter);
 app.route('/api/recommendations', recommendationsRouter);
 app.route('/api/moderation', moderationRouter);
 app.route('/api/sharing', sharingRouter);
+app.route('/api/export', exportRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -173,6 +175,7 @@ app.get('/api', (c) => {
       recommendations: '/api/recommendations',
       moderation: '/api/moderation',
       sharing: '/api/sharing',
+      export: '/api/export',
     },
     docs: '/api/docs',
     seo: {
