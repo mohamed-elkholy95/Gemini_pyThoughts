@@ -28,6 +28,8 @@ import { jobsRouter } from './routes/jobs.js';
 import { seriesRouter } from './routes/series.js';
 import { readingListsRouter } from './routes/readingLists.js';
 import { reportsRouter } from './routes/reports.js';
+import { privacyRouter } from './routes/privacy.js';
+import { gamificationRouter } from './routes/gamification.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
 import { cacheService } from './services/cache.service.js';
@@ -122,6 +124,8 @@ app.route('/api/jobs', jobsRouter);
 app.route('/api/series', seriesRouter);
 app.route('/api/reading-lists', readingListsRouter);
 app.route('/api/reports', reportsRouter);
+app.route('/api/privacy', privacyRouter);
+app.route('/api/gamification', gamificationRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -151,6 +155,8 @@ app.get('/api', (c) => {
       series: '/api/series',
       readingLists: '/api/reading-lists',
       reports: '/api/reports',
+      privacy: '/api/privacy',
+      gamification: '/api/gamification',
     },
     docs: '/api/docs',
     seo: {

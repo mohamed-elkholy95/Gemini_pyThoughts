@@ -376,6 +376,85 @@ export const readingListItemsRelations = relations(readingListItems, ({ one }) =
   }),
 }));
 
+// User Privacy Controls
+export const userBlocks = pgTable('user_blocks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  blockerId: text('blocker_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  blockedId: text('blocked_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.blockerId, table.blockedId] }),
+  index('user_blocks_blocker_idx').on(table.blockerId),
+  index('user_blocks_blocked_idx').on(table.blockedId),
+]);
+
+export const userMutes = pgTable('user_mutes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  muterId: text('muter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  mutedId: text('muted_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  muteType: text('mute_type', { enum: ['posts', 'comments', 'all'] }).notNull().default('all'),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.muterId, table.mutedId] }),
+  index('user_mutes_muter_idx').on(table.muterId),
+]);
+
+// Gamification - Streaks and Badges
+export const userStreaks = pgTable('user_streaks', {
+  userId: text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  currentStreak: integer('current_streak').notNull().default(0),
+  longestStreak: integer('longest_streak').notNull().default(0),
+  lastActivityDate: timestamp('last_activity_date'),
+  streakType: text('streak_type').notNull().default('login'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const badges = pgTable('badges', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description'),
+  iconUrl: text('icon_url'),
+  category: text('category', { enum: ['author', 'reader', 'community', 'milestone'] }).notNull(),
+  tier: text('tier', { enum: ['bronze', 'silver', 'gold', 'platinum'] }).notNull().default('bronze'),
+  criteria: jsonb('criteria').notNull(),
+  pointsReward: integer('points_reward').notNull().default(0),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const userBadges = pgTable('user_badges', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  badgeId: uuid('badge_id').notNull().references(() => badges.id, { onDelete: 'cascade' }),
+  earnedAt: timestamp('earned_at').notNull().defaultNow(),
+  progress: jsonb('progress'),
+}, (table) => [
+  index('user_badges_user_idx').on(table.userId),
+]);
+
+export const pointsLedger = pgTable('points_ledger', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  points: integer('points').notNull(),
+  actionType: text('action_type').notNull(),
+  referenceId: text('reference_id'),
+  referenceType: text('reference_type'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('points_ledger_user_idx').on(table.userId),
+]);
+
+export const userPoints = pgTable('user_points', {
+  userId: text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  totalPoints: integer('total_points').notNull().default(0),
+  weeklyPoints: integer('weekly_points').notNull().default(0),
+  monthlyPoints: integer('monthly_points').notNull().default(0),
+  level: integer('level').notNull().default(1),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // Type definitions
 export interface EditorJSContent {
   time?: number;
