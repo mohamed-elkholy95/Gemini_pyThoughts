@@ -23,7 +23,7 @@ interface UpdateDraftInput {
 
 interface ListDraftsOptions {
   authorId?: string;
-  status?: 'draft' | 'published' | 'archived';
+  status?: 'draft' | 'published' | 'archived' | 'scheduled';
   search?: string;
   page?: number;
   limit?: number;

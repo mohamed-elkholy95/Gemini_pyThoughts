@@ -25,6 +25,9 @@ import { seoRouter } from './routes/seo.js';
 import { tagsRouter } from './routes/tags.js';
 import { analyticsRouter } from './routes/analytics.js';
 import { jobsRouter } from './routes/jobs.js';
+import { seriesRouter } from './routes/series.js';
+import { readingListsRouter } from './routes/readingLists.js';
+import { reportsRouter } from './routes/reports.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
 import { cacheService } from './services/cache.service.js';
@@ -116,6 +119,9 @@ app.route('/api/webhooks', webhooksRouter);
 app.route('/api/tags', tagsRouter);
 app.route('/api/analytics', analyticsRouter);
 app.route('/api/jobs', jobsRouter);
+app.route('/api/series', seriesRouter);
+app.route('/api/reading-lists', readingListsRouter);
+app.route('/api/reports', reportsRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -142,6 +148,9 @@ app.get('/api', (c) => {
       admin: '/api/admin',
       tags: '/api/tags',
       analytics: '/api/analytics',
+      series: '/api/series',
+      readingLists: '/api/reading-lists',
+      reports: '/api/reports',
     },
     docs: '/api/docs',
     seo: {

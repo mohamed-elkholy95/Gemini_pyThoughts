@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { draftService, tagService } from '../services/draft.service.js';
+import { schedulerService } from '../services/scheduler.service.js';
 import { requireAuth, getCurrentUser, type AuthContext } from '../middleware/auth.js';
 import type { EditorJSContent } from '../db/schema.js';
 
@@ -29,10 +30,17 @@ const autoSaveSchema = z.object({
 });
 
 const listDraftsSchema = z.object({
-  status: z.enum(['draft', 'published', 'archived']).optional(),
+  status: z.enum(['draft', 'published', 'archived', 'scheduled']).optional(),
   search: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
+});
+
+const scheduleSchema = z.object({
+  scheduledAt: z.coerce.date().refine(
+    (date) => date > new Date(),
+    { message: 'Scheduled time must be in the future' }
+  ),
 });
 
 // Apply auth middleware to all routes
@@ -117,6 +125,43 @@ draftsRouter.post('/:id/unpublish', async (c) => {
 
   const draft = await draftService.update(id, user!.id, { status: 'draft' });
   return c.json({ draft });
+});
+
+// Schedule draft for publication
+draftsRouter.post('/:id/schedule', zValidator('json', scheduleSchema), async (c) => {
+  const user = getCurrentUser(c);
+  const id = c.req.param('id');
+  const { scheduledAt } = c.req.valid('json');
+
+  await schedulerService.scheduleArticle(id, user!.id, scheduledAt);
+  return c.json({ message: 'Article scheduled for publication', scheduledAt });
+});
+
+// Reschedule draft
+draftsRouter.patch('/:id/schedule', zValidator('json', scheduleSchema), async (c) => {
+  const user = getCurrentUser(c);
+  const id = c.req.param('id');
+  const { scheduledAt } = c.req.valid('json');
+
+  await schedulerService.rescheduleArticle(id, user!.id, scheduledAt);
+  return c.json({ message: 'Article rescheduled', scheduledAt });
+});
+
+// Cancel scheduled publication
+draftsRouter.delete('/:id/schedule', async (c) => {
+  const user = getCurrentUser(c);
+  const id = c.req.param('id');
+
+  await schedulerService.cancelScheduledPublication(id, user!.id);
+  return c.json({ message: 'Scheduled publication cancelled' });
+});
+
+// Get user's scheduled articles
+draftsRouter.get('/scheduled', async (c) => {
+  const user = getCurrentUser(c);
+
+  const scheduled = await schedulerService.getScheduledArticles(user!.id);
+  return c.json({ scheduled });
 });
 
 // Get draft versions

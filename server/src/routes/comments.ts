@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { commentService } from '../services/comment.service.js';
+import { mentionService } from '../services/mention.service.js';
 import { requireAuth, getSession, getCurrentUser, type AuthContext } from '../middleware/auth.js';
 
 const commentsRouter = new Hono<AuthContext>();
@@ -70,6 +71,11 @@ commentsRouter.post('/article/:draftId', requireAuth, zValidator('json', createC
     parentId,
   });
 
+  // Process mentions asynchronously (don't wait for it)
+  mentionService.processCommentMentions(comment.id, content, user!.id, draftId).catch(() => {
+    // Log error but don't fail the request
+  });
+
   return c.json({ comment }, 201);
 });
 
@@ -97,6 +103,13 @@ commentsRouter.get('/article/:draftId/count', async (c) => {
   const draftId = c.req.param('draftId');
   const count = await commentService.getCount(draftId);
   return c.json({ count });
+});
+
+// Search users for mention autocomplete
+commentsRouter.get('/mentions/search', requireAuth, async (c) => {
+  const query = c.req.query('q') || '';
+  const users = await mentionService.searchUsers(query, 10);
+  return c.json({ users });
 });
 
 export { commentsRouter };

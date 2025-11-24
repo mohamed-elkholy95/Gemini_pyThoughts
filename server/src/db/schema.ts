@@ -265,6 +265,117 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
   replies: many(comments, { relationName: 'replies' }),
 }));
 
+// Article Series/Collections
+export const series = pgTable('series', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  coverImage: text('cover_image'),
+  authorId: text('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  isPublished: boolean('is_published').notNull().default(false),
+  publishedAt: timestamp('published_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => [
+  index('series_author_idx').on(table.authorId),
+  index('series_published_idx').on(table.isPublished),
+]);
+
+// Series articles junction table
+export const seriesArticles = pgTable('series_articles', {
+  seriesId: uuid('series_id').notNull().references(() => series.id, { onDelete: 'cascade' }),
+  draftId: uuid('draft_id').notNull().references(() => drafts.id, { onDelete: 'cascade' }),
+  order: integer('order').notNull().default(0),
+  addedAt: timestamp('added_at').notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.seriesId, table.draftId] }),
+  index('series_articles_order_idx').on(table.seriesId, table.order),
+]);
+
+// Reading Lists
+export const readingLists = pgTable('reading_lists', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  isPublic: boolean('is_public').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => [
+  index('reading_lists_user_idx').on(table.userId),
+  index('reading_lists_public_idx').on(table.isPublic),
+]);
+
+// Reading list items junction table
+export const readingListItems = pgTable('reading_list_items', {
+  readingListId: uuid('reading_list_id').notNull().references(() => readingLists.id, { onDelete: 'cascade' }),
+  draftId: uuid('draft_id').notNull().references(() => drafts.id, { onDelete: 'cascade' }),
+  note: text('note'),
+  addedAt: timestamp('added_at').notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.readingListId, table.draftId] }),
+]);
+
+// Content Reports
+export const contentReports = pgTable('content_reports', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  reporterId: text('reporter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  contentType: text('content_type', { enum: ['article', 'comment', 'user'] }).notNull(),
+  contentId: text('content_id').notNull(),
+  reason: text('reason', { enum: ['spam', 'harassment', 'hate_speech', 'misinformation', 'copyright', 'other'] }).notNull(),
+  description: text('description'),
+  status: text('status', { enum: ['pending', 'reviewed', 'resolved', 'dismissed'] }).notNull().default('pending'),
+  reviewedBy: text('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  reviewedAt: timestamp('reviewed_at'),
+  resolution: text('resolution'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('content_reports_status_idx').on(table.status),
+  index('content_reports_content_idx').on(table.contentType, table.contentId),
+  index('content_reports_reporter_idx').on(table.reporterId),
+]);
+
+// Series relations
+export const seriesRelations = relations(series, ({ one, many }) => ({
+  author: one(users, {
+    fields: [series.authorId],
+    references: [users.id],
+  }),
+  articles: many(seriesArticles),
+}));
+
+export const seriesArticlesRelations = relations(seriesArticles, ({ one }) => ({
+  series: one(series, {
+    fields: [seriesArticles.seriesId],
+    references: [series.id],
+  }),
+  draft: one(drafts, {
+    fields: [seriesArticles.draftId],
+    references: [drafts.id],
+  }),
+}));
+
+// Reading list relations
+export const readingListsRelations = relations(readingLists, ({ one, many }) => ({
+  user: one(users, {
+    fields: [readingLists.userId],
+    references: [users.id],
+  }),
+  items: many(readingListItems),
+}));
+
+export const readingListItemsRelations = relations(readingListItems, ({ one }) => ({
+  readingList: one(readingLists, {
+    fields: [readingListItems.readingListId],
+    references: [readingLists.id],
+  }),
+  draft: one(drafts, {
+    fields: [readingListItems.draftId],
+    references: [drafts.id],
+  }),
+}));
+
 // Type definitions
 export interface EditorJSContent {
   time?: number;
@@ -292,3 +403,11 @@ export type NewNotification = typeof notifications.$inferInsert;
 export type Like = typeof likes.$inferSelect;
 export type ArticleView = typeof articleViews.$inferSelect;
 export type UserPreferences = typeof userPreferences.$inferSelect;
+export type Series = typeof series.$inferSelect;
+export type NewSeries = typeof series.$inferInsert;
+export type SeriesArticle = typeof seriesArticles.$inferSelect;
+export type ReadingList = typeof readingLists.$inferSelect;
+export type NewReadingList = typeof readingLists.$inferInsert;
+export type ReadingListItem = typeof readingListItems.$inferSelect;
+export type ContentReport = typeof contentReports.$inferSelect;
+export type NewContentReport = typeof contentReports.$inferInsert;
