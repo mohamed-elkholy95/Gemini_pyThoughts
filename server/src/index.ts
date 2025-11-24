@@ -36,6 +36,11 @@ import { recommendationsRouter } from './routes/recommendations.js';
 import { moderationRouter } from './routes/moderation.js';
 import { sharingRouter } from './routes/sharing.js';
 import { exportRouter } from './routes/export.js';
+import { subscriptionsRouter } from './routes/subscriptions.js';
+import { newsletterRouter } from './routes/newsletter.js';
+import { teamsRouter } from './routes/teams.js';
+import { versionsRouter } from './routes/versions.js';
+import { collaborationRouter } from './routes/collaboration.js';
 import { realtimeService } from './services/realtime.service.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
@@ -139,6 +144,11 @@ app.route('/api/recommendations', recommendationsRouter);
 app.route('/api/moderation', moderationRouter);
 app.route('/api/sharing', sharingRouter);
 app.route('/api/export', exportRouter);
+app.route('/api/subscriptions', subscriptionsRouter);
+app.route('/api/newsletter', newsletterRouter);
+app.route('/api/teams', teamsRouter);
+app.route('/api/versions', versionsRouter);
+app.route('/api/collaboration', collaborationRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -176,6 +186,11 @@ app.get('/api', (c) => {
       moderation: '/api/moderation',
       sharing: '/api/sharing',
       export: '/api/export',
+      subscriptions: '/api/subscriptions',
+      newsletter: '/api/newsletter',
+      teams: '/api/teams',
+      versions: '/api/versions',
+      collaboration: '/api/collaboration',
     },
     docs: '/api/docs',
     seo: {
