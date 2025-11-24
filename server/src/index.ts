@@ -41,6 +41,8 @@ import { newsletterRouter } from './routes/newsletter.js';
 import { teamsRouter } from './routes/teams.js';
 import { versionsRouter } from './routes/versions.js';
 import { collaborationRouter } from './routes/collaboration.js';
+import { contentAnalysisRouter } from './routes/contentAnalysis.js';
+import { migrationRouter } from './routes/migration.js';
 import { realtimeService } from './services/realtime.service.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
@@ -149,6 +151,8 @@ app.route('/api/newsletter', newsletterRouter);
 app.route('/api/teams', teamsRouter);
 app.route('/api/versions', versionsRouter);
 app.route('/api/collaboration', collaborationRouter);
+app.route('/api/analysis', contentAnalysisRouter);
+app.route('/api/migration', migrationRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -191,6 +195,8 @@ app.get('/api', (c) => {
       teams: '/api/teams',
       versions: '/api/versions',
       collaboration: '/api/collaboration',
+      analysis: '/api/analysis',
+      migration: '/api/migration',
     },
     docs: '/api/docs',
     seo: {
