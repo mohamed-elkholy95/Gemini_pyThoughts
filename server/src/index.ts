@@ -32,6 +32,9 @@ import { privacyRouter } from './routes/privacy.js';
 import { gamificationRouter } from './routes/gamification.js';
 import { realtimeRouter } from './routes/realtime.js';
 import { activityRouter } from './routes/activity.js';
+import { recommendationsRouter } from './routes/recommendations.js';
+import { moderationRouter } from './routes/moderation.js';
+import { sharingRouter } from './routes/sharing.js';
 import { realtimeService } from './services/realtime.service.js';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { lifecycleService } from './services/lifecycle.service.js';
@@ -131,6 +134,9 @@ app.route('/api/privacy', privacyRouter);
 app.route('/api/gamification', gamificationRouter);
 app.route('/api/realtime', realtimeRouter);
 app.route('/api/activity', activityRouter);
+app.route('/api/recommendations', recommendationsRouter);
+app.route('/api/moderation', moderationRouter);
+app.route('/api/sharing', sharingRouter);
 
 // SEO routes (RSS, Sitemap, robots.txt)
 app.route('/', seoRouter);
@@ -164,6 +170,9 @@ app.get('/api', (c) => {
       gamification: '/api/gamification',
       realtime: '/api/realtime',
       activity: '/api/activity',
+      recommendations: '/api/recommendations',
+      moderation: '/api/moderation',
+      sharing: '/api/sharing',
     },
     docs: '/api/docs',
     seo: {
